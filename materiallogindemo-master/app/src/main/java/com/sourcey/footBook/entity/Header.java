@@ -1,7 +1,7 @@
 package com.sourcey.footBook.entity;
 
 public class Header {
-    private int payLoadSize;
+    private int payloadSize;
     private int type;
     private int sender;
     private int receiver;
@@ -11,19 +11,19 @@ public class Header {
     public static final int HEADER_SIZE = 17;
 
     public Header() {
-        this.payLoadSize = 0;
+        this.payloadSize = 0;
         this.type = 0;
         this.sender = 0;
         this.receiver = 0;
         this.status = 0;
     }
 
-    public int getPayLoadSize() {
-        return payLoadSize;
+    public int getPayloadSize() {
+        return payloadSize;
     }
 
-    public void setPayLoadSize(int payLoadSize) {
-        this.payLoadSize = payLoadSize;
+    public void setPayloadSize(int payloadSize) {
+        this.payloadSize = payloadSize;
     }
 
     public int getType() {

@@ -4,29 +4,48 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Info {
-    private Map<Short, String> key;
-    private Map<Short, String> value;
+    private short keySize;
+    private short valueSize;
+    private String key;
+    private String value;
 
     public Info() {
-        key = new HashMap<>();
-        value = new HashMap<>();
+        keySize = 0;
+        valueSize = 0;
+        key = null;
+        value = null;
     }
 
+    public short getKeySize() {
+        return keySize;
+    }
 
-    public Map<Short, String> getKey() {
+    public void setKeySize(short keySize) {
+        this.keySize = keySize;
+    }
+
+    public short getValueSize() {
+        return valueSize;
+    }
+
+    public void setValueSize(short valueSize) {
+        this.valueSize = valueSize;
+    }
+
+    public String getKey() {
         return key;
     }
 
-    public void addKey(Short keySize, String keyStr) {
-        key.put(keySize, keyStr);
+    public void setKey(String key) {
+        this.key = key;
     }
 
-    public Map<Short, String> getValue() {
+    public String getValue() {
         return value;
     }
 
-    public void addValue(Short valueSize, String valueStr) {
-        value.put(valueSize, valueStr);
+    public void setValue(String value) {
+        this.value = value;
     }
 
 }

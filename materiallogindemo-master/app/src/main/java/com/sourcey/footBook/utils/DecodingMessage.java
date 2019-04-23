@@ -7,36 +7,35 @@ import com.sourcey.footBook.entity.Message;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.HashMap;
 
 /**
  * 解码数据，保存到Message中
  */
 public class DecodingMessage {
     private BufferedInputStream bytes;
-    private byte[] message;
+    private byte[] msgArr;
 
 
     public DecodingMessage(BufferedInputStream bytes) {
         this.bytes = bytes;
-        this.message = new byte[4096];
+        this.msgArr = new byte[4096];
     }
 
     public Message decode() {
         int temp = -1;
         int size = 0;
         try {
-            while ((temp = bytes.read(message)) != -1) {
+            while ((temp = bytes.read(msgArr)) != -1) {
                 size += temp;
             }
             //删除message后剩余(未使用)部分
-            message = Arrays.copyOf(message, size);
+            msgArr = Arrays.copyOf(msgArr, size);
 
-            Header header = createHeader(message);
+            Header header = createHeader(msgArr);
 
-            message = Arrays.copyOfRange(message,
-                    Header.HEADER_SIZE, message.length);
-            Info info = createInfo(message);
+            msgArr = Arrays.copyOfRange(msgArr,
+                    Header.HEADER_SIZE, msgArr.length);
+            Info info = createInfo(msgArr);
 
             return new Message(header, info);
         } catch(IOException e) {
@@ -52,12 +51,12 @@ public class DecodingMessage {
         Header header = new Header();
 
         try {
-            header.setPayLoadSize(Convert.bytesToInt(byteArr, Numbers.ZERO));
+            header.setPayloadSize(Convert.bytesToInt(byteArr, Numbers.ZERO));
             header.setType(Convert.bytesToInt(byteArr, Numbers.FOUR));
             header.setSender(Convert.bytesToInt(byteArr, Numbers.EIGHT));
             header.setReceiver(Convert.bytesToInt(byteArr, Numbers.TWELVE));
             //与Code中的枚举进行比较
-            header.setStatus(Convert.bytesToByte(byteArr, Numbers.SIXTEEN));
+            header.setStatus(byteArr[Numbers.SIXTEEN]);
 
             return header;
         } catch (IOException e) {
@@ -72,10 +71,13 @@ public class DecodingMessage {
         rangeCheck(Convert.SHORT_SIZE);
         Info info = new Info();
         short[] sizes = getSize(byteArr);
+        if(sizes[0] > 64 || sizes[1] > 1024) {
+            throw new RuntimeException("解码数据格式错误");
+        }
         int length = sizes[0] + sizes[1];
 
         if(byteArr.length - 2 != length) {
-            throw new RuntimeException("传入数据格式错误");
+            throw new RuntimeException("解码数据格式错误");
         }
         int offset = 2;
         try {
@@ -84,8 +86,10 @@ public class DecodingMessage {
             offset += sizes[0];
             String valueStr = Convert.bytesToString(byteArr, offset, byteArr.length);
 
-            info.addKey(sizes[0], keyStr);
-            info.addValue(sizes[1], valueStr);
+            info.setKeySize(sizes[0]);
+            info.setValueSize(sizes[1]);
+            info.setKey(keyStr);
+            info.setValue(valueStr);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -101,13 +105,13 @@ public class DecodingMessage {
         byteArr = Arrays.copyOfRange(byteArr, Numbers.ZERO, Convert.SHORT_SIZE);
         short[] sizes = new short[2];
         sizes[0] = (short) (byteArr[0] >>> 2 & 0x3f);
-        sizes[1] = (short) ((byteArr[1] & 0xff) + (byteArr[0] & 0x03 << 8));
+        sizes[1] = (short) ((byteArr[1] & 0xff) + ((byteArr[0] & 0x03) << 8));
         return sizes;
     }
 
     private void rangeCheck(int size) {
-        if(message.length < size) {
-            throw new RuntimeException("传入数据格式错误");
+        if(msgArr.length < size) {
+            throw new RuntimeException("解码数据格式错误");
         }
     }
 
