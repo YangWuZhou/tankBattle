@@ -6,6 +6,8 @@ import com.sourcey.footBook.entity.Info;
 import com.sourcey.footBook.entity.Message;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 将Message中的数据编码，发送到服务器
@@ -37,15 +39,15 @@ public class EncodingMessage {
             throw new RuntimeException("编码数据格式错误");
         }
         try {
-            //ZERO
+            //[0, 4)
             offset += toMsgArr(offset, Convert.intToBytes(header.getPayloadSize()));
-            //FOUR
-            offset += toMsgArr(offset, Convert.intToBytes(header.getType()));
-            //EIGHT
-            offset += toMsgArr(offset, Convert.intToBytes(header.getSender()));
-            //TWELVE
-            offset += toMsgArr(offset, Convert.intToBytes(header.getReceiver()));
-            //SIXTEEN
+            //[4, 12)
+            offset += toMsgArr(offset, Convert.longToBytes(header.getSender()));
+            //[12, 20)
+            offset += toMsgArr(offset, Convert.longToBytes(header.getReceiver()));
+            //[20, 21)
+            offset += toMsgArr(offset, header.getType());
+            //[21, 22)
             offset += toMsgArr(offset, header.getStatus());
         } catch (IOException e) {
             e.printStackTrace();
@@ -56,13 +58,16 @@ public class EncodingMessage {
         if(info == null) {
             return;
         }
-
-        offset += toMsgArr(offset,
-                sizesToBytes(new short[] {info.getKeySize(), info.getValueSize()}));
-        byte[] key = info.getKey() != null ? info.getKey().getBytes() : new byte[0];
-        offset += toMsgArr(offset, key);
-        byte[] value = info.getValue() != null ? info.getValue().getBytes() : new byte[0];
-        toMsgArr(offset, value);
+        Set<Map.Entry<String, String>> payload = info.getPayload().entrySet();
+        for(Map.Entry<String, String> entry : payload) {
+            offset += toMsgArr(offset,
+                    sizesToBytes(new short[]{(short) entry.getKey().length(),
+                            (short) entry.getValue().length()}));
+            byte[] key = entry.getKey() != null ? entry.getKey().getBytes() : new byte[0];
+            offset += toMsgArr(offset, key);
+            byte[] value = entry.getValue() != null ? entry.getValue().getBytes() : new byte[0];
+            toMsgArr(offset, value);
+        }
     }
 
     private int toMsgArr(int start, byte... byteArr) {

@@ -16,9 +16,9 @@ public class DecodingMessage {
     private byte[] msgArr;
     private static final int ZERO = 0;
     private static final int FOUR = 4;
-    private static final int EIGHT = 8;
     private static final int TWELVE = 12;
-    private static final int SIXTEEN = 16;
+    private static final int TWENTY = 20;
+    private static final int TWENTY_ONE = 21;
 
 
     public DecodingMessage(BufferedInputStream bytes) {
@@ -52,16 +52,22 @@ public class DecodingMessage {
     }
 
     private Header createHeader(byte[] byteArr) {
-        rangeCheck(Header.HEADER_SIZE);
+        rangeCheck(byteArr, Header.HEADER_SIZE, true);
+
         Header header = new Header();
 
         try {
+            //[0, 4)
             header.setPayloadSize(Convert.bytesToInt(byteArr, ZERO));
-            header.setType(Convert.bytesToInt(byteArr, FOUR));
-            header.setSender(Convert.bytesToInt(byteArr, EIGHT));
-            header.setReceiver(Convert.bytesToInt(byteArr, TWELVE));
+            //[4, 12)
+            header.setSender(Convert.bytesToLong(byteArr, FOUR));
+            //[12, 20)
+            header.setReceiver(Convert.bytesToLong(byteArr, TWELVE));
+            //[20, 21)
+            header.setType(byteArr[TWENTY]);
+            //[21, 22)
             //与Code中的枚举进行比较
-            header.setStatus(byteArr[SIXTEEN]);
+            header.setStatus(byteArr[TWENTY_ONE]);
 
             return header;
         } catch (IOException e) {
@@ -73,32 +79,43 @@ public class DecodingMessage {
     }
 
     private Info createInfo(byte[] byteArr) {
-        rangeCheck(Convert.SHORT_SIZE);
+        int offset = 0;
         Info info = new Info();
-        short[] sizes = getSize(byteArr);
-        if(sizes[0] > 64 || sizes[1] > 1024) {
-            throw new RuntimeException("解码数据格式错误");
-        }
-        int length = sizes[0] + sizes[1];
-
-        if(byteArr.length - 2 != length) {
-            throw new RuntimeException("解码数据格式错误");
-        }
-        int offset = 2;
         try {
-            String keyStr = Convert.bytesToString(byteArr,
-                    offset, offset + sizes[0]);
-            offset += sizes[0];
-            String valueStr = Convert.bytesToString(byteArr, offset, byteArr.length);
-
-            info.setKeySize(sizes[0]);
-            info.setValueSize(sizes[1]);
-            info.setKey(keyStr);
-            info.setValue(valueStr);
+            while(byteArr.length > 0) {
+                short[] sizes = rangeCheck(byteArr, Convert.SHORT_SIZE, false);
+                if(sizes == null || sizes.length == 0) {
+                    return null;
+                }
+                offset += Convert.SHORT_SIZE;
+                String keyStr = Convert.bytesToString(byteArr,
+                        offset, offset + sizes[0]);
+                offset += sizes[0];
+                String valueStr = Convert.bytesToString(byteArr, offset, offset + sizes[1]);
+                offset += sizes[1];
+                byteArr = Arrays.copyOfRange(byteArr, offset, byteArr.length);
+                info.add(keyStr, valueStr);
+            }
+            return info;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private short[] rangeCheck(byte[] byteArr, int size, boolean isHeader) {
+        if(byteArr.length < size) {
+            throw new RuntimeException("解码数据格式错误");
+        } else if(isHeader) {
+            return null;
+        }
+        short[] sizes = getSize(byteArr);
+        int length = sizes[0] + sizes[1];
+        if(sizes[0] > 64 || sizes[1] > 1024 || byteArr.length - 2 < length) {
+            throw new RuntimeException("解码数据格式错误");
+        }
+
+        return sizes;
     }
 
     /**
@@ -107,17 +124,11 @@ public class DecodingMessage {
      * valueSize：10位
      */
     private short[] getSize(byte[] byteArr) {
-        byteArr = Arrays.copyOfRange(byteArr, ZERO, Convert.SHORT_SIZE);
+        byteArr = Arrays.copyOf(byteArr, Convert.SHORT_SIZE);
         short[] sizes = new short[2];
         sizes[0] = (short) (byteArr[0] >>> 2 & 0x3f);
         sizes[1] = (short) ((byteArr[1] & 0xff) + ((byteArr[0] & 0x03) << 8));
         return sizes;
-    }
-
-    private void rangeCheck(int size) {
-        if(msgArr.length < size) {
-            throw new RuntimeException("解码数据格式错误");
-        }
     }
 
     private void close() {
