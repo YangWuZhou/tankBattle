@@ -1,7 +1,6 @@
 package com.sourcey.footBook.utils;
 
 
-import com.sourcey.footBook.LoginActivity_ViewBinding;
 import com.sourcey.footBook.entity.Header;
 import com.sourcey.footBook.entity.Info;
 import com.sourcey.footBook.entity.Message;
@@ -60,8 +59,10 @@ public class EncodingMessage {
 
         offset += toMsgArr(offset,
                 sizesToBytes(new short[] {info.getKeySize(), info.getValueSize()}));
-        offset += toMsgArr(offset, info.getKey().getBytes());
-        toMsgArr(offset, info.getValue().getBytes());
+        byte[] key = info.getKey() != null ? info.getKey().getBytes() : new byte[0];
+        offset += toMsgArr(offset, key);
+        byte[] value = info.getValue() != null ? info.getValue().getBytes() : new byte[0];
+        toMsgArr(offset, value);
     }
 
     private int toMsgArr(int start, byte... byteArr) {

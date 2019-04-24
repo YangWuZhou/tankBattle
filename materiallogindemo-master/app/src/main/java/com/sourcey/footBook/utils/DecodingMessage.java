@@ -14,6 +14,11 @@ import java.util.Arrays;
 public class DecodingMessage {
     private BufferedInputStream bytes;
     private byte[] msgArr;
+    private static final int ZERO = 0;
+    private static final int FOUR = 4;
+    private static final int EIGHT = 8;
+    private static final int TWELVE = 12;
+    private static final int SIXTEEN = 16;
 
 
     public DecodingMessage(BufferedInputStream bytes) {
@@ -51,12 +56,12 @@ public class DecodingMessage {
         Header header = new Header();
 
         try {
-            header.setPayloadSize(Convert.bytesToInt(byteArr, Numbers.ZERO));
-            header.setType(Convert.bytesToInt(byteArr, Numbers.FOUR));
-            header.setSender(Convert.bytesToInt(byteArr, Numbers.EIGHT));
-            header.setReceiver(Convert.bytesToInt(byteArr, Numbers.TWELVE));
+            header.setPayloadSize(Convert.bytesToInt(byteArr, ZERO));
+            header.setType(Convert.bytesToInt(byteArr, FOUR));
+            header.setSender(Convert.bytesToInt(byteArr, EIGHT));
+            header.setReceiver(Convert.bytesToInt(byteArr, TWELVE));
             //与Code中的枚举进行比较
-            header.setStatus(byteArr[Numbers.SIXTEEN]);
+            header.setStatus(byteArr[SIXTEEN]);
 
             return header;
         } catch (IOException e) {
@@ -102,7 +107,7 @@ public class DecodingMessage {
      * valueSize：10位
      */
     private short[] getSize(byte[] byteArr) {
-        byteArr = Arrays.copyOfRange(byteArr, Numbers.ZERO, Convert.SHORT_SIZE);
+        byteArr = Arrays.copyOfRange(byteArr, ZERO, Convert.SHORT_SIZE);
         short[] sizes = new short[2];
         sizes[0] = (short) (byteArr[0] >>> 2 & 0x3f);
         sizes[1] = (short) ((byteArr[1] & 0xff) + ((byteArr[0] & 0x03) << 8));
