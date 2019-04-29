@@ -4,15 +4,15 @@ import com.sourcey.footBook.entity.Header;
 import com.sourcey.footBook.entity.Info;
 import com.sourcey.footBook.entity.Message;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Arrays;
 
 /**
  * 解码数据，保存到Message中
  */
 public class DecodingMessage {
-    private BufferedInputStream bytes;
+    private InputStream bytes;
     private byte[] msgArr;
     private static final int ZERO = 0;
     private static final int FOUR = 4;
@@ -21,7 +21,7 @@ public class DecodingMessage {
     private static final int TWENTY_ONE = 21;
 
 
-    public DecodingMessage(BufferedInputStream bytes) {
+    public DecodingMessage(InputStream bytes) {
         this.bytes = bytes;
         this.msgArr = new byte[4096];
     }
