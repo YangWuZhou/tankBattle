@@ -1,11 +1,11 @@
 package yang.map;
 
+import yang.utils.Constant;
 import yang.utils.GameUtil;
 
 import java.awt.*;
 
 public class GameMap {
-    private final int NUMBER = 13;
     // 0 路，1 水， 2 草地，3 砖墙，4 红墙，5 老鹰
     public static int[][] map1 = {
             {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -37,11 +37,11 @@ public class GameMap {
     };
 
     public static void paintMap(Graphics g) {
-        int y = GameUtil.FRAME_BEGIN_Y;
-        int space = GameUtil.MOVING_PIXELS;
+        int y = Constant.FRAME_BEGIN_Y;
+        int space = Constant.MOVING_PIXELS;
         Image image;
         for (int[] rows : map1) {
-            int x = GameUtil.FRAME_BEGIN_X;
+            int x = Constant.FRAME_BEGIN_X;
             for (int row : rows) {
                 switch (row) {
                     case 0:

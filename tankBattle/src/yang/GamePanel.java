@@ -2,11 +2,15 @@ package yang;
 
 import yang.entity.Tank;
 import yang.map.GameMap;
+import yang.utils.Constant;
 import yang.utils.GameUtil;
 
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * 游戏元素加载的组件
+ */
 public class GamePanel extends JPanel {
     private Tank[] tanks;
 
@@ -14,7 +18,7 @@ public class GamePanel extends JPanel {
         this.tanks = tanks;
     }
 
-    public static GamePanel initGameInterface(Tank... tanks) {
+    public static GamePanel loadGameInterface(Tank... tanks) {
         return new GamePanel(tanks);
     }
 
@@ -29,13 +33,13 @@ public class GamePanel extends JPanel {
     private void paintBackground(Graphics g) {
         g.drawImage(GameUtil.getImage("img/background/bg1.gif"), 0, 0, null);
         g.drawImage(GameUtil.getImage("img/background/bg2.gif"),
-                GameUtil.FRAME_BEGIN_X, GameUtil.FRAME_BEGIN_Y, null);
+                Constant.FRAME_BEGIN_X, Constant.FRAME_BEGIN_Y, null);
     }
 
     // 加载坦克
     private void paintTank(Graphics g) {
-        for (int i = 0; i < tanks.length; i++) {
-            tanks[i].paintSelf(g);
+        for (Tank tank : tanks) {
+            tank.paintSelf(g);
         }
     }
 

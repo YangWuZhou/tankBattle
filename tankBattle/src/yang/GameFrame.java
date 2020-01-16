@@ -2,7 +2,7 @@ package yang;
 
 import yang.entity.Tank;
 import yang.type.TankType;
-import yang.utils.GameUtil;
+import yang.utils.Constant;
 
 import javax.swing.*;
 
@@ -17,7 +17,7 @@ public class GameFrame extends JFrame {
     }
 
     private void paint() {
-        add(GamePanel.initGameInterface(player1));
+        add(GamePanel.loadGameInterface(player1));
     }
 
     /**
@@ -38,9 +38,9 @@ public class GameFrame extends JFrame {
     }
 
     public void initFrame() {
-        this.setSize(GameUtil.FRAME_WIDTH, GameUtil.FRAME_HEIGHT);
+        this.setSize(Constant.FRAME_WIDTH, Constant.FRAME_HEIGHT);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setLocation(GameUtil.LOCATION_X, GameUtil.LOCATION_Y);
+        this.setLocation(Constant.LOCATION_X, Constant.LOCATION_Y);
         this.setVisible(true); // 可见
         new GameThread().start();
         addKeyListener(new GameMonitor(player1));
