@@ -27,19 +27,21 @@ public class GameObject {
     }
 
     public void paintSelf(Graphics g) {
-        g.drawImage(gameImg, x, y, null);
+
     }
 
+    // 获取行，即二维数组的第一个数字
     public int getRow() {
-        int row = (y - Constant.FRAME_BEGIN_Y) / Constant.MOVING_PIXELS;
+        int row = y;
         if (Direction.DOWN.equals(direction) || Direction.LEFT.equals(direction)) {
             row++;
         }
         return row;
     }
 
+    // 获取列，即二维数组的第二个数字
     public int getLine() {
-        int line = (x - Constant.FRAME_BEGIN_X) / Constant.MOVING_PIXELS;
+        int line = x;
         if (Direction.DOWN.equals(direction) || Direction.RIGHT.equals(direction)) {
             line++;
         }

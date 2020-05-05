@@ -1,23 +1,25 @@
 package yang;
 
-import yang.entity.Tank;
-import yang.type.TankType;
+import yang.panel.GameInterfacePanel;
+import yang.panel.SelectLevelInterfacePanel;
+import yang.panel.StartInterfacePanel;
 import yang.utils.Constant;
 
 import javax.swing.*;
+import java.awt.*;
 
 /**
  * 游戏框架类
  */
 public class GameFrame extends JFrame {
-    private Tank player1 = new Tank("img/play/p1tank_U.gif", TankType.PLAY1);
 
     public GameFrame() {
-        paint();
-    }
-
-    private void paint() {
-        add(GamePanel.loadGameInterface(player1));
+        CardLayout card = new CardLayout();
+        JPanel panel = new JPanel(card);
+        panel.add(new StartInterfacePanel(panel, card), "startInterface");
+        panel.add(new SelectLevelInterfacePanel(panel, card), "selectLevelInterface");
+        panel.add(new GameInterfacePanel(panel, card), "gameInterface");
+        add(panel);
     }
 
     /**
@@ -29,7 +31,7 @@ public class GameFrame extends JFrame {
             while (true) {
                 try {
                     repaint();
-                    Thread.sleep(45);
+                    Thread.sleep(10);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -43,6 +45,5 @@ public class GameFrame extends JFrame {
         this.setLocation(Constant.LOCATION_X, Constant.LOCATION_Y);
         this.setVisible(true); // 可见
         new GameThread().start();
-        addKeyListener(new GameMonitor(player1));
     }
 }
